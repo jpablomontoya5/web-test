@@ -29,14 +29,13 @@ jobs:
     name: SAST Analysis (Semgrep)
     runs-on: ubuntu-latest
     needs: unit-tests
+    container:
+      image: returntocorp/semgrep # Ejecutamos dentro del contenedor oficial para evitar líos de rutas
     steps:
       - uses: actions/checkout@v4
-      
       - name: Run Semgrep
-        # Usamos '--output' nativo en lugar de '>' para asegurar la creación del archivo
         run: |
-          docker run --rm -v "${{ github.workspace }}:/src" returntocorp/semgrep semgrep scan --config=auto --text --output=semgrep-report.txt
-        continue-on-error: true
+          semgrep scan --config=auto --text --output=semgrep-report.txt || true
 
       - name: Upload Semgrep Report
         uses: actions/upload-artifact@v4
@@ -56,31 +55,25 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          # Listamos para confirmar que existen antes del escaneo
-          pip list > installed-packages.txt 
+          pip freeze > requirements-frozen.txt # Creamos un archivo con versiones exactas para Trivy
 
-      - name: Run Trivy FS Scan
+      - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
-          # CAMBIO CLAVE: Apuntar directamente al archivo de dependencias
           scan-ref: '.' 
-          # Añadimos este parámetro para que Trivy busque archivos de texto de dependencias
-          dependency-tree: true 
           format: 'table'
           output: 'trivy-report.txt'
           exit-code: '0'
           severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+          # Eliminamos 'dependency-tree' para quitar la advertencia
 
-      - name: Upload SCA Reports
+      - name: Upload Trivy Report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: reporte-sca-trivy
-          # Subimos ambos para verificar qué vió Trivy
-          path: |
-            trivy-report.txt
-            installed-packages.txt
+          path: trivy-report.txt
 
   # --- ETAPA 4: BUILD ---
   build-and-push:
