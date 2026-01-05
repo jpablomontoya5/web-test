@@ -31,12 +31,11 @@ jobs:
     needs: unit-tests
     steps:
       - uses: actions/checkout@v4
-
       - name: Run Semgrep Scan
-        # Usamos la imagen de docker directamente para asegurar que el archivo se escriba en el disco del runner
+        # Eliminamos --output y usamos '| tee' para capturar el resumen completo
         run: |
-          docker run --rm -v "${{ github.workspace }}:/src" returntocorp/semgrep semgrep scan --config=auto --text --output=semgrep-report.txt
-        # El flag --output es la forma más confiable de generar el archivo
+          docker run --rm -v "${{ github.workspace }}:/src" returntocorp/semgrep semgrep scan --config=auto --text | tee semgrep-report.txt
+        # 'tee' escribe en la consola y en el archivo al mismo tiempo
 
       - name: Upload Semgrep Report
         uses: actions/upload-artifact@v4
