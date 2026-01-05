@@ -60,16 +60,17 @@ jobs:
           pip list > installed-packages.txt 
 
       - name: Run Trivy FS Scan
-        # Usamos la acción pero forzamos el escaneo del directorio de trabajo actual
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
-          scan-ref: '.'
+          # CAMBIO CLAVE: Apuntar directamente al archivo de dependencias
+          scan-ref: '.' 
+          # Añadimos este parámetro para que Trivy busque archivos de texto de dependencias
+          dependency-tree: true 
           format: 'table'
           output: 'trivy-report.txt'
           exit-code: '0'
-          severity: 'CRITICAL,HIGH'
-        continue-on-error: true
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
 
       - name: Upload SCA Reports
         uses: actions/upload-artifact@v4
