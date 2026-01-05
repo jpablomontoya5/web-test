@@ -62,6 +62,13 @@ jobs:
           exit-code: '1' 
           severity: 'CRITICAL,HIGH'
           scanners: 'vuln,secret' # Asegura que busque vulnerabilidades y secretos explícitamente
+  # PASO PARA GENERAR EL ARTEFACTO
+      - name: Upload Trivy Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-seguridad-trivy
+          path: trivy-report.txt
+          retention-days: 5 # El reporte se borrará automáticamente en 5 días
 
   # --- ETAPA 4: BUILD ---
   build-and-push:
