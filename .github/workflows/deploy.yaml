@@ -67,7 +67,7 @@ jobs:
         # Ejecutamos un escaneo rápido solo para generar el archivo de texto
         run: |
           pip install semgrep
-          semgrep scan --config=auto --text --output=semgrep-report.txt || true
+          semgrep scan --config=auto --verbose . > semgrep-report.txt 2>&1 || true
       - name: Upload Semgrep Report
         uses: actions/upload-artifact@v4
         if: always()
