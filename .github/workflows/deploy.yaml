@@ -32,23 +32,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Semgrep OSS
-        # Usamos la acción oficial que gestiona los permisos de archivos correctamente
-        uses: semgrep/semgrep-action@v1
-        with:
-          config: >-
-            p/python
-            p/security-audit
-            p/secrets
-            p/kubernetes
-        # Esta acción genera un archivo llamado sarsif por defecto, 
-        # pero forzaremos un TXT para tu reporte manual
-
-      - name: Generate Text Report
-        # Ejecutamos un escaneo rápido solo para generar el archivo de texto
+      - name: Run Semgrep Scan
+        # Usamos la imagen de docker directamente para asegurar que el archivo se escriba en el disco del runner
         run: |
-          pip install semgrep
-          semgrep scan --config=auto --text --output=semgrep-report.txt || true
+          docker run --rm -v "${{ github.workspace }}:/src" returntocorp/semgrep semgrep scan --config=auto --text --output=semgrep-report.txt
+        # El flag --output es la forma más confiable de generar el archivo
 
       - name: Upload Semgrep Report
         uses: actions/upload-artifact@v4
