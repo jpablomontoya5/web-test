@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Usa el helper para generar un nombre único basado en el release
+  name: {{ include "my-app.fullname" . }}
+  labels:
+    {{ include "my-app.labels" . | nindent 4 }}
+spec:
+  # Configuración de réplicas para Alta Disponibilidad (Punto 4.b)
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{ include "my-app.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{ include "my-app.selectorLabels" . | nindent 8 }}
+    spec:
+      # Punto 3: Seguridad (No-Root) para pasar Semgrep
+      securityContext:
+        {{ toYaml .Values.podSecurityContext | nindent 8 }}
+      containers: 
+        - name: my-app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8000
+          # Punto 5: Observabilidad y Alta Disponibilidad
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          # Punto 4.a: Gestión de recursos
+          resources:
+            {{ toYaml .Values.resources | nindent 12 }}

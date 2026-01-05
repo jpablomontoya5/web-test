@@ -1,0 +1,24 @@
+replicaCount: 2
+
+podSecurityContext: {}
+
+
+image:
+  repository: mi-app-devops
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
