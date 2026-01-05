@@ -1,21 +1,21 @@
+import logging
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from prometheus_fastapi_instrumentator import Instrumentator
 
-app = FastAPI(title="Mi App DevOps")
+# Logs estructurados
+logging.basicConfig(level=logging.INFO, format='{"time": "%(asctime)s", "level": "%(levelname)s", "msg": "%(message)s"}')
+logger = logging.getLogger(__name__)
 
-@app.get("/", response_class=HTMLResponse)
-def home():
-    return """
-    <html>
-        <head><title>App Funcional</title></head>
-        <body>
-            <h1>Bienvenido a la API REST</h1>
-            <p>Estado: <strong>Operacional</strong></p>
-            <a href="/docs">Ver Documentación Interactiva</a>
-        </body>
-    </html>
-    """
+app = FastAPI()
 
-@app.get("/api/v1/saludo/{nombre}")
-def saludo(nombre: str):
-    return {"mensaje": f"Hola {nombre}, este es un microservicio funcional."}
+# Observabilidad: Métricas para Prometheus
+Instrumentator().instrument(app).expose(app)
+
+@app.get("/")
+def read_root():
+    logger.info("Consulta a la raiz realizada")
+    return {"status": "ok", "app": "DevOps-App"}
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
