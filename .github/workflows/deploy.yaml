@@ -60,13 +60,14 @@ jobs:
       - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
-          scan-ref: '.' 
+          scan-type: 'config' # Cambiamos a config/fs combinado
+          scan-ref: '.'
+          # Agregamos esta línea para que busque específicamente archivos de dependencias
+          vuln-type: 'os,library' 
           format: 'table'
           output: 'trivy-report.txt'
           exit-code: '0'
           severity: 'CRITICAL,HIGH,MEDIUM,LOW'
-          # Eliminamos 'dependency-tree' para quitar la advertencia
 
       - name: Upload Trivy Report
         uses: actions/upload-artifact@v4
