@@ -130,7 +130,8 @@ jobs:
     name: Prep GitOps (ArgoCD)
     runs-on: ubuntu-latest
     needs: build-and-push
-    if: github.ref == 'refs/heads/main'
+    if: always()
+    #if: github.ref == 'refs/heads/main'
     steps:
       - name: Report Status
         run: echo "Imagen aprobada y lista para que ArgoCD la sincronice en el clúster local."
