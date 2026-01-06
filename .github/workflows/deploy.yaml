@@ -1,5 +1,8 @@
 name: DevSecOps Pipeline
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [ "main", "feature/**" ]
@@ -138,6 +141,7 @@ jobs:
         with:
           # Necesitamos un token para que el pipeline pueda escribir en el repo
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.ref }}
 
       - name: Update Image Tag in Helm/YAML
         run: |
