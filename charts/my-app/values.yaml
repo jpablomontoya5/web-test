@@ -13,7 +13,7 @@ securityContext:
 image:
   repository: mi-app-devops
   pullPolicy: IfNotPresent
-  tag: "753d17eff37cfc02b53ac3528720c027cc32a108"
+  tag: "f066c806faae5e3fb4795fd72aa7b48900f7d695"
 
 service:
   type: ClusterIP
