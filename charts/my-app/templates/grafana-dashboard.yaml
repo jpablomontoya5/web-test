@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-maestro-devops
+  labels:
+    grafana_dashboard: "1" # Etiqueta necesaria para que el Sidecar lo importe
+  annotations:
+    grafana_dashboard_folder: "Proyecto Final"
+data:
+  maestro-devops.json: |-
+    {
+      "title": "Panel Maestro: Infraestructura y Aplicación",
+      "panels": [
+        {
+          "title": "CPU del Nodo (Hardware - Node Exporter)",
+          "type": "gauge",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "targets": [{ "expr": "sum(node_cpu_seconds_total{mode!='idle'}) / count(node_cpu_seconds_total{mode='idle'}) * 100" }]
+        },
+        {
+          "title": "Memoria Usada (Hardware - Node Exporter)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "targets": [{ "expr": "node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes" }]
+        },
+        {
+          "title": "Peticiones HTTP por Segundo (App - FastAPI)",
+          "type": "state-timeline",
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+          "targets": [{ "expr": "rate(http_requests_total[1m])" }]
+        }
+      ]
+    }
