@@ -125,13 +125,32 @@ jobs:
           severity: 'CRITICAL'
 
 
-  # --- ETAPA 5: PREPARAR GITOPS ---
+# --- ETAPA 5: PREPARAR GITOPS (Actualización de Manifiestos) ---
   deploy-trigger:
-    name: Prep GitOps (ArgoCD)
+    name: Prep GitOps (ArgoCD Update)
     runs-on: ubuntu-latest
     needs: build-and-push
+    # Solo ejecutamos esto si las pruebas de seguridad y el build pasaron
     if: always()
-    #if: github.ref == 'refs/heads/main'
     steps:
-      - name: Report Status
-        run: echo "Imagen aprobada y lista para que ArgoCD la sincronice en el clúster local."
+      - uses: actions/checkout@v4
+        with:
+          # Necesitamos un token para que el pipeline pueda escribir en el repo
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Image Tag in Helm/YAML
+        run: |
+          # Supongamos que usas un archivo values.yaml en tu chart
+          # Este comando busca la línea 'tag:' y la reemplaza por el SHA del commit actual
+          sed -i "s/tag: .*/tag: \"${{ github.sha }}\"/" charts/my-app/values.yaml
+          
+          # Si usas un deployment.yaml directo sin Helm, puedes usar:
+          # sed -i "s|image: .*|image: mi-app-devops:${{ github.sha }}|" charts/my-app/templates/deployment.yaml
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "chore(gitops): update image tag to ${{ github.sha }} [skip ci]"
+          git push
