@@ -149,9 +149,6 @@ jobs:
           # Este comando busca la línea 'tag:' y la reemplaza por el SHA del commit actual
           sed -i "s/tag: .*/tag: \"${{ github.sha }}\"/" charts/my-app/values.yaml
           
-          # Si usas un deployment.yaml directo sin Helm, puedes usar:
-          # sed -i "s|image: .*|image: mi-app-devops:${{ github.sha }}|" charts/my-app/templates/deployment.yaml
-
       - name: Commit and Push changes
         run: |
           git config --global user.name "github-actions[bot]"
