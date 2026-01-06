@@ -2,6 +2,12 @@ replicaCount: 2
 
 podSecurityContext: {}
 
+securityContext:
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  runAsUser: 1000
+  readOnlyRootFilesystem: true
+
 
 image:
   repository: mi-app-devops
@@ -11,6 +17,21 @@ image:
 service:
   type: ClusterIP
   port: 80
+  targetPort: 8000
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 10
 
 ingress:
   enabled: false

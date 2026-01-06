@@ -23,26 +23,16 @@ spec:
         - name: my-app
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           securityContext:
-            allowPrivilegeEscalation: false
-            runAsNonRoot: true
-            runAsUser: 1000
-            readOnlyRootFilesystem: true
+            {{ toYaml .Values.securityContext | nindent 12 }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 8000
+            - containerPort: {{ .Values.service.targetPort }}
+
           # Punto 5: Observabilidad y Alta Disponibilidad
           livenessProbe:
-            httpGet:
-              path: /health
-              port: 8000
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            {{ toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
-            httpGet:
-              path: /health
-              port: 8000
-            initialDelaySeconds: 5
-            periodSeconds: 10
-          # Punto 4.a: Gestión de recursos
+            {{ toYaml .Values.readinessProbe | nindent 12 }}
+
           resources:
             {{ toYaml .Values.resources | nindent 12 }}
