@@ -1,121 +1,103 @@
-# Proyecto Web-Test: Pipeline DevSecOps & GitOps
+# Proyecto Web-Test: Pipeline DevSecOps y GitOps
 
-Este repositorio contiene una solución completa de entrega continua para una aplicación Python (FastAPI), integrando prácticas avanzadas de seguridad, despliegue automatizado en Kubernetes mediante ArgoCD y un stack profesional de Observabilidad. 🛠
+Este repositorio contiene una solución de entrega continua para una aplicación Python (FastAPI). Integra prácticas de seguridad, despliegue automatizado en Kubernetes mediante ArgoCD y un stack de Observabilidad.
 
 ## Tecnologías Utilizadas
 
-| Categoría     | Herramienta / Lenguaje |
-|--------------:|------------------------|
-| Lenguaje      | Python (FastAPI)       |
-| CI/CD         | GitHub Actions         |
-| Seguridad (SAST) | Semgrep             |
-| SCA           | Trivy                  |
-| Infraestructura | Kubernetes (Kind), Helm |
-| GitOps        | ArgoCD                 |
-| Observabilidad| Prometheus & Grafana   |
+- Lenguaje: Python (FastAPI)
+- CI/CD: GitHub Actions
+- Seguridad (SAST): Semgrep
+- Infraestructura: Kubernetes (Kind) y Helm
+- GitOps: ArgoCD
+- Observabilidad: Prometheus y Grafana
 
 ---
 
 ## 1. Arquitectura del Flujo End-to-End
 
-El flujo de trabajo sigue un modelo de Automatización Total:
+El flujo de trabajo sigue un modelo de automatización total:
 
-- CI (Integración Continua): Al realizar un push, GitHub Actions ejecuta pruebas unitarias y escanea el código con Semgrep y Trivy para detectar vulnerabilidades.
-- Build & Security: Se construye la imagen Docker segura y se sube al registro.
-- GitOps Trigger: El pipeline actualiza automáticamente el tag de la imagen en `charts/my-app/values.yaml` y realiza un commit.
-- CD (Despliegue Continuo): ArgoCD detecta el cambio en Git y sincroniza el estado del clúster local (Kind), desplegando la nueva versión automáticamente.
+- Integración Continua (CI): Al realizar un push, GitHub Actions ejecuta el escaneo de código con Semgrep para detectar vulnerabilidades de seguridad.
+- Construcción y Seguridad: Se genera la imagen Docker y se sube al registro de contenedores.
+- Disparador GitOps: El pipeline actualiza automáticamente el tag de la imagen en el archivo `charts/my-app/values.yaml`.
+- Despliegue Continuo (CD): ArgoCD detecta el cambio en el repositorio y sincroniza el estado del clúster local (Kind), desplegando la nueva versión de forma automática.
 
 ---
-
 
 ## 2. Implementación de Seguridad (DevSecOps)
 
-Se aplicó el principio de "Least Privilege" y "Hardening" de contenedores tras los hallazgos de seguridad (SAST):
+Se aplicó el principio de "Least Privilege" y el endurecimiento (hardening) de contenedores basado en los hallazgos de Semgrep:
 
-- 🔒 Sistema de archivos de solo lectura: Configuración de `readOnlyRootFilesystem: true` para mitigar ataques de persistencia.
-- 👤 No privilegios: Los contenedores corren como usuarios no-root (`runAsNonRoot: true`, UID `1000`).
-- 🛡️ Análisis Automático: Cada commit es bloqueado si no cumple con las reglas de seguridad de Kubernetes definidas en el pipeline.
-
----
-
-## Comparativa: ¿Por qué Semgrep?
-
-A continuación, se comparan las ventajas de la herramienta SAST utilizada frente a otras comunes:
-
-| Ventaja   | Descripción |
-|----------:|-------------|
-| Velocidad | Semgrep es increíblemente rápido; escaneó los 11 archivos del proyecto en segundos. SonarQube suele requerir un servidor pesado y más tiempo. |
-| Enfoque en Seguridad | Mientras SonarQube busca errores de lógica, Semgrep destaca en encontrar configuraciones inseguras en manifiestos de Kubernetes, Dockerfiles y YAML. |
-| Portabilidad | No requiere instalación compleja ni cuentas. Se ejecuta como un contenedor Docker ligero en el CI/CD. |
-| Personalización | Las reglas de Semgrep parecen código real, facilitando la creación de reglas propias. |
+- Sistema de archivos de solo lectura: Configuración de `readOnlyRootFilesystem: true` para mitigar ataques de persistencia y modificación de binarios en caliente.
+- Ejecución sin privilegios: Los contenedores se configuran para correr como usuarios no-root mediante la directiva `runAsNonRoot: true`.
+- Análisis Automático: El pipeline está configurado para bloquear cualquier commit que no cumpla con las reglas de seguridad de Kubernetes.
 
 ---
 
 ## 3. Observabilidad y Monitoreo
 
-Se implementó el stack Prometheus-Grafana para visibilidad total del sistema:
+Se implementó el stack Prometheus-Grafana para obtener visibilidad total del sistema:
 
-### A. Logs Estructurados
-
-La aplicación emite logs en formato JSON, facilitando su recolección y análisis por herramientas como Loki.
-
-Ejemplo:
-```json
-{"time": "2026-01-05...", "level": "INFO", "msg": "Consulta a la raiz realizada"}
-```
-
-### B. Métricas de Aplicación
-
-Integración del endpoint `/metrics` para que Prometheus recolecte datos de rendimiento (latencia, peticiones HTTP, errores) directamente desde FastAPI.
-
-### C. Visualización en Grafana
-
-Se desplegaron tableros automáticos mediante IaC (ConfigMaps) para monitorear:
-- Salud del API Server: Disponibilidad al 100%.
-- Uso de Recursos: Gráficas en tiempo real de CPU y Memoria del clúster y de los pods individuales.
+- Logs Estructurados: La aplicación emite logs en formato JSON para facilitar su recolección y análisis automatizado.
+- Métricas de Aplicación: Se habilitó el endpoint `/metrics` para que Prometheus recolecte datos de rendimiento, latencia y errores.
+- Visualización: Se utilizan tableros automáticos en Grafana para monitorear la disponibilidad del API Server y el uso de recursos (CPU y Memoria) de los pods.
 
 ---
 
-## 4. Guía de Despliegue Local
+## 4. Instrucciones de Despliegue
 
-### Requisitos
-- Docker Desktop & Kind
-- Helm v3+
-- kubectl
+Siga estos pasos para replicar el entorno de manera local:
 
-### Pasos de Instalación
+### Requisitos Previos
 
-Crear el clúster local:
+- Docker Desktop instalado y en ejecución.
+- Kind (Kubernetes in Docker).
+- Helm v3 y kubectl configurados.
+
+### Paso 1: Preparación del Clúster
+
+Cree el clúster local utilizando Kind:
 ```bash
 kind create cluster --name devops-project
 ```
 
-Instalar Stack de Monitoreo:
+### Paso 2: Instalación del Stack de Monitoreo
+
+Utilice Helm para desplegar Prometheus y Grafana:
 ```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
 helm install monitoring prometheus-community/kube-prometheus-stack
 ```
 
-Desplegar Aplicación:
-- ArgoCD se encarga del despliegue al conectar el repositorio. Si se desea hacer manual:
+### Paso 3: Configuración de ArgoCD
+
+Instale ArgoCD en el clúster para gestionar el despliegue de la aplicación:
 ```bash
-cd charts
-helm install mi-app ./my-app
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 ```
 
-Acceder a la Aplicación:
-```bash
-kubectl port-forward svc/mi-app 8000:80
-```
+### Paso 4: Despliegue de la Aplicación
 
-Visitar: http://localhost:8000
+Conecte su repositorio a ArgoCD. El controlador detectará los archivos en la carpeta `charts/my-app` y realizará el despliegue inicial de los pods.
+
+### Paso 5: Acceso a las Herramientas
+
+- Aplicación:
+```bash
+kubectl port-forward deployment/mi-app 8000:8000
+```
+- Grafana:
+```bash
+kubectl port-forward svc/monitoring-grafana 3000:80
+```
+Usuario: `admin`
 
 ---
 
-## 📊 5. Resultados del Estado Actual
+## 5. Resultados del Estado Actual
 
-- ✅ Pods Activos: 2 réplicas en ejecución constante (Alta Disponibilidad).
-- ✅ Estabilidad: 0 reinicios en los pods principales durante el periodo de prueba final (4+ horas).
-- ✅ Seguridad: Pipeline validado y libre de hallazgos críticos de SAST y SCA.
-
-Este proyecto demuestra una transición exitosa de un desarrollo local a una arquitectura lista para la nube, siguiendo los estándares de la industria DevSecOps.
+- Disponibilidad: 2 réplicas en ejecución constante bajo un esquema de alta disponibilidad.
+- Estabilidad: Los pods principales mantienen 0 reinicios tras periodos extensos de prueba.
+- Seguridad: El pipeline de CI finaliza con éxito y sin hallazgos críticos de seguridad tras las correcciones aplicadas.
