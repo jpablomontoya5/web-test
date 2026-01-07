@@ -15,7 +15,7 @@ Este repositorio contiene una solución de entrega continua para una aplicación
 
 ## 1. Arquitectura del Flujo End-to-End
 
-![Diagrama de Arquitectura](docs/arquitectura.png)
+![Diagrama de Arquitectura](docs/roadmapdevco.drawio.png)
 
 El flujo de trabajo sigue un modelo de automatización total:
 
