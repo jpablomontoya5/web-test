@@ -73,19 +73,8 @@ helm repo update
 helm install monitoring prometheus-community/kube-prometheus-stack
 ```
 
-### Paso 3: Configuración de ArgoCD
 
-Instale ArgoCD en el clúster para gestionar el despliegue de la aplicación:
-```bash
-kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-```
-
-### Paso 4: Despliegue de la Aplicación
-
-Conecte su repositorio a ArgoCD. El controlador detectará los archivos en la carpeta `charts/my-app` y realizará el despliegue inicial de los pods.
-
-### Paso 5: Acceso a las Herramientas
+### Paso 3: Acceso a las Herramientas
 
 - Aplicación:
 ```bash
@@ -99,7 +88,7 @@ Usuario: `admin`
 
 ---
 
-## 5. Resultados del Estado Actual
+## 4. Resultados del Estado Actual
 
 - Disponibilidad: 2 réplicas en ejecución constante bajo un esquema de alta disponibilidad.
 - Estabilidad: Los pods principales mantienen 0 reinicios tras periodos extensos de prueba.
