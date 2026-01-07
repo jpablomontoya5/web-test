@@ -15,6 +15,8 @@ Este repositorio contiene una solución de entrega continua para una aplicación
 
 ## 1. Arquitectura del Flujo End-to-End
 
+![Diagrama de Arquitectura](docs/arquitectura.png)
+
 El flujo de trabajo sigue un modelo de automatización total:
 
 - Integración Continua (CI): Al realizar un push, GitHub Actions ejecuta el escaneo de código con Semgrep para detectar vulnerabilidades de seguridad.
@@ -23,6 +25,7 @@ El flujo de trabajo sigue un modelo de automatización total:
 - Despliegue Continuo (CD): ArgoCD detecta el cambio en el repositorio y sincroniza el estado del clúster local (Kind), desplegando la nueva versión de forma automática.
 
 ---
+
 
 ## 2. Implementación de Seguridad (DevSecOps)
 
